@@ -1,0 +1,5 @@
+resolution: 0.1
+trajectoryFilename: 'slam_traj1.ppm'
+relocalizationFilename: 'slam_reloc1.bin'
+occupancyFilename: 'slam_map1.bin'
+

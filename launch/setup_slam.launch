@@ -1,0 +1,15 @@
+<launch>
+    <arg name="manager" default="realsense_ros_camera_manager"/>
+    <arg name="load_relocalization_map" default=""/>
+    <arg name="load_occupancy_map"      default=""/>
+    <!-- setup some static transforms to allow the camera pose to be shown in rviz -->
+    <node pkg="tf2_ros" type="static_transform_publisher"   name="map_to_odom"              args="0 0 0 0 0 0 1 map odom" />
+    <node pkg="tf2_ros" type="static_transform_publisher"   name="base_link_to_camera_link" args="0 0 0 0 0 0 1 base_link camera_link" />
+    <node pkg="rviz"    type="rviz"                         name="rviz_demo"                args="-d $(find arl_slam)/rviz/arl_slam1.rviz" />
+    <include file="$(find arl_slam)/launch/slam_nodelet.launch">  
+        <arg name="manager" value="$(arg manager)"/>
+        <arg name="publish_odometry" value="true" />   
+        <arg name="load_relocalization_map" value="$(arg load_relocalization_map)"/>
+        <arg name="load_occupancy_map" value="$(arg load_occupancy_map)"/>
+    </include>
+</launch>

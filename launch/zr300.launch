@@ -1,0 +1,24 @@
+<launch>
+  <arg name="camera" value="ZR300" />
+
+  <!-- Start nodelet manager in provided namespace -->
+  <arg name="manager" default="$(arg camera)_nodelet_manager" />
+  <arg name="debug" default="false" /> <!-- Run manager in GDB? -->
+  <!-- Worker threads for the nodelet manager -->
+  <arg name="num_worker_threads" default="4" />
+  <include file="$(find arl_slam)/launch/include/manager.launch.xml">
+    <arg name="name"                value="$(arg manager)" />
+    <arg name="debug"               value="$(arg debug)" />
+    <arg name="num_worker_threads"  value="$(arg num_worker_threads)" />
+  </include>
+  <arg name="load_relocalization_map" default=""/>
+  <arg name="load_occupancy_map"      default=""/>
+    
+  <include file="$(find arl_slam)/launch/zr300_rgbd.launch">
+  </include>
+  <include file="$(find arl_slam)/launch/setup_slam.launch">
+    <arg name="manager" value="$(arg manager)"/>
+    <arg name="load_relocalization_map" value="$(arg load_relocalization_map)"/>
+    <arg name="load_occupancy_map" value="$(arg load_occupancy_map)"/>
+  </include>
+</launch>
