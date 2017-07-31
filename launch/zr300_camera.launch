@@ -49,6 +49,8 @@
   <!-- Worker threads for the nodelet manager -->
   <arg name="num_worker_threads" default="4" />
 
+  <!-- args for the rgbd visual odometry  -->
+
   <!-- Push down all topics/nodelets into "camera" namespace -->
   <group ns="$(arg camera)">
 
@@ -101,6 +103,27 @@
       <arg name="hw_registered_processing"        value="$(arg hw_registered_processing)" />
       <arg name="sw_registered_processing"        value="$(arg sw_registered_processing)" />
     </include>
+
+    <!-- RGB-D Odometry -->
+    <group>
+      <node if="$(arg compressed)" name="republish_rgb" type="republish" pkg="image_transport" args="$(arg rgb_image_transport) in:=$(arg rgb_topic) raw out:=$(arg rgb_topic_relay)" />
+      <node if="$(arg compressed)" name="republish_depth" type="republish" pkg="image_transport" args="$(arg depth_image_transport) in:=$(arg depth_topic) raw out:=$(arg depth_topic_relay)" />
+  
+      <node pkg="rtabmap_ros" type="rgbd_odometry" name="rgbd_odometry" output="$(arg output)" args="$(arg odom_args)" launch-prefix="$(arg launch_prefix)">
+        <remap from="rgb/image"       to="$(arg rgb_topic_relay)"/>
+        <remap from="depth/image"     to="$(arg depth_topic_relay)"/>
+        <remap from="rgb/camera_info" to="$(arg camera_info_topic)"/>
+    
+        <param name="frame_id"                    type="string" value="$(arg frame_id)"/>
+        <param name="odom_frame_id"               type="string" value="$(arg odom_frame_id)"/>
+        <param name="ground_truth_frame_id"       type="string" value="$(arg ground_truth_frame_id)"/>
+        <param name="ground_truth_base_frame_id"  type="string" value="$(arg ground_truth_base_frame_id)"/>
+        <param name="wait_for_transform_duration" type="double" value="$(arg wait_for_transform)"/>
+        <param name="approx_sync"                 type="bool"   value="$(arg approx_sync)"/>
+        <param name="config_path"                 type="string" value="$(arg cfg)"/>
+        <param name="queue_size"                  type="int"    value="$(arg queue_size)"/>
+      </node>
+    </group>
 
   </group> <!-- camera -->
 

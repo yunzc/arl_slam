@@ -1,24 +1,137 @@
 <launch>
-  <arg name="camera" value="ZR300" />
+  <arg name="serial_no"           default="" />
+  <arg name="camera"              default="camera"/>
+  <arg name="camera_type"         default="ZR300" />
+  <arg name="usb_port_id"         default="" /> <!-- USB "Bus#-Port#" -->
+  <arg name="mode"                default="manual" />
+  <arg name="depth"               default="depth" />
+  <arg name="rgb"                 default="rgb" />
+  <arg name="fisheye"             default="fisheye" />
+  <arg name="ir"                  default="ir" />
+  <arg name="ir2"                 default="ir2" />
+  <arg name="depth_registered"    default="depth_registered" />
+  <arg name="projector"           default="projector" />
+  <arg name="accel"               default="accel" />
+  <arg name="gyro"                default="gyro" />
+  <arg name="fisheye_width"       default="640" />
+  <arg name="fisheye_height"      default="480" />
+  <arg name="enable_fisheye"      default="false" />
+  <arg name="depth_width"         default= "480" /> <!-- "320" /> -->
+  <arg name="depth_height"        default= "360" /> <!-- "240" /> -->
+  <arg name="enable_depth"        default="true" />
+  <arg name="color_width"         default="640" />
+  <arg name="color_height"        default="480" />
+  <arg name="enable_color"        default="true" />
+  <arg name="fisheye_fps"         default="30" />
+  <arg name="depth_fps"           default="30" />
+  <arg name="color_fps"           default="30" />
+  <arg name="queue_size"          default="100" />
 
-  <!-- Start nodelet manager in provided namespace -->
-  <arg name="manager" default="$(arg camera)_nodelet_manager" />
-  <arg name="debug" default="false" /> <!-- Run manager in GDB? -->
+  <param name="$(arg camera)/points_xyzrgb_sw_registered/queue_size" type="int" value="$(arg queue_size)" />
+
+  <!-- Optionally suppress loading the driver nodelet. Useful while playing back recorded raw data from a bag.-->
+  <arg name="load_driver"   default="true" />
+  <arg name="publish_tf"    default="true" />
+
+  <!-- Processing Modules -->
+  <arg name="rgb_processing"                  default="true"/>
+  <arg name="ir_processing"                   default="true"/>
+  <arg name="depth_processing"                default="true"/>
+  <arg name="depth_registered_processing"     default="true"/>
+  <arg name="disparity_processing"            default="true"/>
+  <arg name="disparity_registered_processing" default="true"/>
+  <arg name="hw_registered_processing"        default="false" />
+  <arg name="sw_registered_processing"        default="true" />
+
+  <!-- Disable respawn topics by default -->
+  <arg name="respawn" default="false" />
+
   <!-- Worker threads for the nodelet manager -->
   <arg name="num_worker_threads" default="4" />
-  <include file="$(find arl_slam)/launch/include/manager.launch.xml">
-    <arg name="name"                value="$(arg manager)" />
-    <arg name="debug"               value="$(arg debug)" />
-    <arg name="num_worker_threads"  value="$(arg num_worker_threads)" />
-  </include>
-  <arg name="load_relocalization_map" default=""/>
-  <arg name="load_occupancy_map"      default=""/>
-    
-  <include file="$(find arl_slam)/launch/zr300_rgbd.launch">
-  </include>
-  <include file="$(find arl_slam)/launch/setup_slam.launch">
-    <arg name="manager" value="$(arg manager)"/>
-    <arg name="load_relocalization_map" value="$(arg load_relocalization_map)"/>
-    <arg name="load_occupancy_map" value="$(arg load_occupancy_map)"/>
-  </include>
+
+  <!-- args for rgbd visual odometry -->
+  <arg name="rgb_topic"               default="/camera/rgb/image_rect_color" />
+  <arg name="depth_topic"             default="/camera/depth_registered/sw_registered/image_rect_raw" />
+  <arg name="camera_info_topic"       default="/camera/rgb/camera_info" />
+  <arg name="frame_id"                default="camera_link"/>     <!-- Fixed frame id, you may set "base_link" or "base_footprint" if they are published -->
+  <arg name="odom_frame_id"           default=""/>                
+  <arg name="map_frame_id"            default="map"/>
+  <arg name="wait_for_transform"      default="0"/>
+  <arg name="approx_sync"             default="false"/>   
+  <arg name="cfg"                     default="" />
+  <arg name="odom_args"               default=""/>
+
+
+  <!-- Push down all topics/nodelets into "camera" namespace -->
+  <group ns="$(arg camera)">
+
+    <!-- Start nodelet manager in provided namespace -->
+    <arg name="manager" value="$(arg camera)_nodelet_manager" />
+    <arg name="debug" default="false" /> <!-- Run manager in GDB? -->
+    <include file="$(find rgbd_launch)/launch/includes/manager.launch.xml">
+      <arg name="name"                value="$(arg manager)" />
+      <arg name="debug"               value="$(arg debug)" />
+      <arg name="num_worker_threads"  value="$(arg num_worker_threads)" />
+    </include>
+    <!-- Load driver -->
+    <include if="$(arg load_driver)"
+             file="$(find realsense_camera)/launch/includes/nodelet_rgbd.launch.xml">
+      <arg name="manager"                   value="$(arg manager)" />
+      <arg name="camera"                    value="$(arg camera)" />
+      <arg name="camera_type"               value="$(arg camera_type)" />
+      <arg name="serial_no"                 value="$(arg serial_no)" />
+      <arg name="usb_port_id"               value="$(arg usb_port_id)" />
+      <arg name="depth"                     value="$(arg depth)" />
+      <arg name="rgb"                       value="$(arg rgb)" />
+      <arg name="ir"                        value="$(arg ir)" />
+      <arg name="publish_tf"                value="$(arg publish_tf)" />
+      <arg name="mode"                      value="$(arg mode)" />
+      <arg name="depth_width"               value="$(arg depth_width)" />
+      <arg name="depth_height"              value="$(arg depth_height)" />
+      <arg name="color_width"               value="$(arg color_width)" />
+      <arg name="color_height"              value="$(arg color_height)" />
+      <arg name="depth_fps"                 value="$(arg depth_fps)" />
+      <arg name="color_fps"                 value="$(arg color_fps)" />
+      <arg name="enable_fisheye"            value="true" />
+      <arg name="enable_imu"                value="true" />
+
+    </include>
+
+    <!-- Load standard constellation of processing nodelets -->
+    <include file="$(find rgbd_launch)/launch/includes/processing.launch.xml">
+      <arg name="manager"                         value="$(arg manager)" />
+      <arg name="rgb"                             value="$(arg rgb)" />
+      <arg name="ir"                              value="$(arg ir)" />
+      <arg name="depth"                           value="$(arg depth)" />
+      <arg name="depth_registered"                value="$(arg depth_registered)" />
+      <arg name="projector"                       value="$(arg projector)" />
+      <arg name="respawn"                         value="$(arg respawn)" />
+      <arg name="rgb_processing"                  value="$(arg rgb_processing)" />
+      <arg name="ir_processing"                   value="$(arg ir_processing)" />
+      <arg name="depth_processing"                value="$(arg depth_processing)" />
+      <arg name="depth_registered_processing"     value="$(arg depth_registered_processing)" />
+      <arg name="disparity_processing"            value="$(arg disparity_processing)" />
+      <arg name="disparity_registered_processing" value="$(arg disparity_registered_processing)" />
+      <arg name="hw_registered_processing"        value="$(arg hw_registered_processing)" />
+      <arg name="sw_registered_processing"        value="$(arg sw_registered_processing)" />
+    </include>
+
+  </group> <!-- camera -->
+
+  <!-- RGB-D Odometry (if we want to use outside filter to fuse odom)-->
+<!--   <node pkg="rtabmap_ros" type="rgbd_odometry" name="rgbd_odometry" output="screen" args="$(arg odom_args)">
+    <remap from="rgb/image"       to="$(arg rgb_topic)"/>
+    <remap from="depth/image"     to="$(arg depth_topic)"/>
+    <remap from="rgb/camera_info" to="$(arg camera_info_topic)"/>
+    <remap from="odom"            to="viz_odom" />
+
+    <param name="frame_id"                    type="string" value="$(arg frame_id)"/>
+    <param name="odom_frame_id"               type="string" value="$(arg odom_frame_id)"/>
+    <param name="wait_for_transform_duration" type="double" value="$(arg wait_for_transform)"/>
+    <param name="approx_sync"                 type="bool"   value="$(arg approx_sync)"/>
+    <param name="config_path"                 type="string" value="$(arg cfg)"/>
+    <param name="queue_size"                  type="int"    value="$(arg queue_size)"/>
+    <param name="ground_truth_frame_id"       type="string" value=""/>
+  </node>
+ -->
 </launch>
