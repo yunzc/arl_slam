@@ -15,7 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
   message_runtime
   nav_msgs
   nodelet
-  realsense_ros_camera
   roscpp
   rospy
   sensor_msgs

@@ -1,0 +1,2 @@
+export ROS_MASTER_URI=$1
+export ROS_IP=$2
