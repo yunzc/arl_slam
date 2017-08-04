@@ -3,7 +3,6 @@
   <arg name="camera"              default="camera"/>
   <arg name="camera_type"         default="ZR300" />
   <arg name="usb_port_id"         default="" /> <!-- USB "Bus#-Port#" -->
-  <arg name="mode"                default="manual" />
   <arg name="depth"               default="depth" />
   <arg name="rgb"                 default="rgb" />
   <arg name="fisheye"             default="fisheye" />
@@ -15,9 +14,9 @@
   <arg name="gyro"                default="gyro" />
   <arg name="fisheye_width"       default="640" />
   <arg name="fisheye_height"      default="480" />
-  <arg name="enable_fisheye"      default="false" />
-  <arg name="depth_width"         default= "480" /> <!-- "320" /> -->
-  <arg name="depth_height"        default= "360" /> <!-- "240" /> -->
+  <arg name="enable_fisheye"      default="true" />
+  <arg name="depth_width"         default= "320" /> <!-- "480" /> -->
+  <arg name="depth_height"        default= "240" /> <!-- "360" /> -->
   <arg name="enable_depth"        default="true" />
   <arg name="color_width"         default="640" />
   <arg name="color_height"        default="480" />
@@ -34,7 +33,7 @@
   <arg name="publish_tf"    default="true" />
 
   <!-- Processing Modules -->
-  <arg name="rgb_processing"                  default="true"/>
+  <arg name="rgb_processing"                  default="false"/>
   <arg name="ir_processing"                   default="true"/>
   <arg name="depth_processing"                default="true"/>
   <arg name="depth_registered_processing"     default="true"/>
@@ -54,7 +53,7 @@
   <arg name="depth_topic"             default="/camera/depth_registered/sw_registered/image_rect_raw" />
   <arg name="camera_info_topic"       default="/camera/rgb/camera_info" />
   <arg name="frame_id"                default="camera_link"/>     <!-- Fixed frame id, you may set "base_link" or "base_footprint" if they are published -->
-  <arg name="odom_frame_id"           default=""/>                
+  <arg name="odom_frame_id"           default="/odom"/>                
   <arg name="map_frame_id"            default="map"/>
   <arg name="wait_for_transform"      default="0"/>
   <arg name="approx_sync"             default="false"/>   
@@ -65,6 +64,20 @@
   <!-- Push down all topics/nodelets into "camera" namespace -->
   <group ns="$(arg camera)">
 
+    <!-- remapping for compatibility with rest of slam code  -->
+    <remap from="/camera/camera/color/image_raw"               to="/camera/rgb/image_rect_color" />
+    <remap from="/camera/camera/depth/image_raw"               to="/camera/depth/image_raw" />
+    <remap from="/camera/camera/fisheye/camera_info"           to="/camera/fisheye/camera_info" />
+    <remap from="/camera/camera/fisheye/image_raw"             to="/camera/fisheye/image_raw" />
+    <remap from="/camera/camera/accel/imu_info"                to="/camera/accel/imu_info" />
+    <remap from="/camera/camera/accel/sample"                  to="/camera/accel/sample" />
+    <remap from="/camera/camera/gyro/imu_info"                 to="/camera/gyro/imu_info" />
+    <remap from="/camera/camera/gyro/sample"                   to="/camera/gyro/sample" />
+    <remap from="/camera/camera/extrinsics/fisheye2depth"      to="/camera/extrinsics/fisheye2depth" />
+    <remap from="/camera/camera/extrinsics/fisheye2imu"        to="/camera/extrinsics/fisheye2imu" />
+    <remap from="/camera/camera/color/camera_info"             to="/camera/rgb/camera_info" />
+    <remap from="/camera/camera/depth/camera_info"             to="/camera/depth/camera_info" />
+
     <!-- Start nodelet manager in provided namespace -->
     <arg name="manager" value="$(arg camera)_nodelet_manager" />
     <arg name="debug" default="false" /> <!-- Run manager in GDB? -->
@@ -73,28 +86,23 @@
       <arg name="debug"               value="$(arg debug)" />
       <arg name="num_worker_threads"  value="$(arg num_worker_threads)" />
     </include>
-    <!-- Load driver -->
-    <include if="$(arg load_driver)"
-             file="$(find realsense_camera)/launch/includes/nodelet_rgbd.launch.xml">
+
+    <!-- Load driver -->        
+    <include file="$(find arl_slam)/launch/camera.launch">
       <arg name="manager"                   value="$(arg manager)" />
       <arg name="camera"                    value="$(arg camera)" />
-      <arg name="camera_type"               value="$(arg camera_type)" />
       <arg name="serial_no"                 value="$(arg serial_no)" />
-      <arg name="usb_port_id"               value="$(arg usb_port_id)" />
-      <arg name="depth"                     value="$(arg depth)" />
-      <arg name="rgb"                       value="$(arg rgb)" />
-      <arg name="ir"                        value="$(arg ir)" />
-      <arg name="publish_tf"                value="$(arg publish_tf)" />
-      <arg name="mode"                      value="$(arg mode)" />
       <arg name="depth_width"               value="$(arg depth_width)" />
       <arg name="depth_height"              value="$(arg depth_height)" />
       <arg name="color_width"               value="$(arg color_width)" />
       <arg name="color_height"              value="$(arg color_height)" />
       <arg name="depth_fps"                 value="$(arg depth_fps)" />
       <arg name="color_fps"                 value="$(arg color_fps)" />
-      <arg name="enable_fisheye"            value="true" />
-      <arg name="enable_imu"                value="true" />
-
+      <arg name="enable_fisheye"            value="$(arg enable_fisheye)" />
+      <arg name="fisheye_width"             value="$(arg fisheye_width)"/>
+      <arg name="fisheye_height"            value="$(arg fisheye_height)"/>
+      <arg name="enable_depth"              value="$(arg enable_depth)"/>
+      <arg name="enable_color"              value="$(arg enable_color)"/>
     </include>
 
     <!-- Load standard constellation of processing nodelets -->
@@ -116,8 +124,14 @@
       <arg name="sw_registered_processing"        value="$(arg sw_registered_processing)" />
     </include>
 
-  </group> <!-- camera -->
+    <!-- running slam for odometry enable fisheye = true for this -->
+<!--     <include file="$(find arl_slam)/launch/slamOdom.launch">
+      <arg name="manager"                         value="$(arg manager)" />
+    </include> -->
 
+  </group> <!-- camera -->
+  
+<!-- Comment out everything below this line if you only want to use visual odom (and also the slam odom above) -->
   <!-- RGB-D Odometry (if we want to use outside filter to fuse odom)-->
 <!--   <node pkg="rtabmap_ros" type="rgbd_odometry" name="rgbd_odometry" output="screen" args="$(arg odom_args)">
     <remap from="rgb/image"       to="$(arg rgb_topic)"/>
@@ -133,5 +147,7 @@
     <param name="queue_size"                  type="int"    value="$(arg queue_size)"/>
     <param name="ground_truth_frame_id"       type="string" value=""/>
   </node>
- -->
+
+  <node pkg="arl_slam" type="odometry.py" name="odometry.py" output="screen" /> -->
+
 </launch>
