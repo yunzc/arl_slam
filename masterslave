@@ -1,4 +1,5 @@
 #!/bin/bash 
+
 # make it easier to setup masterslave
 # enter ip of ros master as arg 
 
@@ -7,3 +8,5 @@ echo "ROS master: $ROS_MASTER_URI"
 
 export ROS_IP=$(hostname -I)
 echo "ROS IP: $ROS_IP"
+
+exec "$@"
