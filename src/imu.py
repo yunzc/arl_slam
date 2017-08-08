@@ -16,7 +16,7 @@ class IMU_state_estimator(object):
 		self.imu_topic_type = 0	
 		if len(imu_topic_name) == 2:
 			self.imu_topic_type = 1
-		self imu_topic_name = imu_topic_name
+		self.imu_topic_name = imu_topic_name
 		self.accel = []
 		# accel in list [a_x, a_y, a_z]
 		self.gyro = [] 
@@ -25,26 +25,21 @@ class IMU_state_estimator(object):
 		# according to the size of the filter 
 		self.filter_size = median_filter_size
 		# initialize ros node 
-		rospy.init_node('kf', anonymous=True)
+		rospy.init_node('state_estimator', anonymous=True)
 		# define publihser 
-		self.pub = rospy.Publisher(imu_state, Imu, queue_size=10)
+		self.pub = rospy.Publisher('imu_state', Imu, queue_size=10)
 		# for graphing 
 		self.past_accel_data = [[0,0,0] for i in range(50)]
 		self.past_gyro_data = [[0,0,0] for j in range(50)]
-		self.fig = plt.figure()
-		self.ax1 = self.fig.add_subplot(1,1,1)
 
 	def update_data(self):
-		# first discard old data 
-		if len(self.prev5accel) == self.filter_size:
-			self.prev5accel.pop(0)
-		if len(self.prev5gyro) == self.filter_size:
-			self.prev5gyro.pop(0)
-		# add prev data to list
-		self.prev5accel.append(self.accel)
-		self.prev5gyro.append(self.gyro)
+		# discard old data 
+		if len(self.accel) == self.filter_size:
+			self.accel.pop(0)
+		if len(self.gyro) == self.filter_size:
+			self.gyro.pop(0)
 
-	def IMU_callback_1(self):
+	def callBack(self, data):
 		# this is for getIMU_1 
 		# get new data 
 		linAcc = data.linear_acceleration
@@ -57,24 +52,32 @@ class IMU_state_estimator(object):
 		self.accel = [linAcc.x, linAcc.y, linAcc.z]
 		self.gyro = [angVel.x,angVel.y,angVel.z]
 
-	def getIMU_1(self):
+	def getIMU1(self):
 		self.update_data()
-		rospy.Subscriber(self.imu_topic_name[0], Imu, self.IMU_callback_1)
+		rospy.Subscriber(self.imu_topic_name[0], Imu, self.callBack)
 
-	def IMU_callback_2_accel(self):
+	def callBackAccel(self, data):
 		# this is for getIMU_2 for acceleration
 		# get new data 
+		linAcc = data.linear_acceleration
+		linCov = np.matrix(data.linear_acceleration_covariance)
+		linCov = linCov.reshape([3,3])
 		# update 
+		self.accel.append([linAcc.x, linAcc.y, linAcc.z])
 
-	def IMU_callback_2_gyro(self):
+	def callBackGyro(self, data):
 		# this is for getIMU_2 for gyro 
 		# get new data 
+		angVel = data.angular_velocity 
+		angCov = np.matrix(data.angular_velocity_covariance)
+		angCov = angCov.reshape([3,3])
 		# update
+		self.gyro.append([angVel.x,angVel.y,angVel.z])
 
-	def get_IMU_2(self):
+	def getIMU2(self):
 		self.update_data()
-		rospy.Subscriber(self.imu_topic_name[0], Imu, self.IMU_callback_2_accel)
-		rospy.Subscriber(self.imu_topic_name[1], Imu, self.IMU_callback_2_gyro)
+		rospy.Subscriber(self.imu_topic_name[0], Imu, self.callBackAccel)
+		rospy.Subscriber(self.imu_topic_name[1], Imu, self.callBackGyro)
 
 	def filter_data(self):
 		# median filter
@@ -86,33 +89,33 @@ class IMU_state_estimator(object):
 		sorted_gyro_y = sorted([self.gyro[j][1] for j in range(len(self.gyro))])
 		sorted_gyro_z = sorted([self.gyro[j][2] for j in range(len(self.gyro))])
 		# take middle value of sorted data 
-		mid_index = int(round(self.filter_size/2.))
+		mid_index = int(round(len(self.accel)/2.)) - 1
 		accel = [sorted_accel_x[mid_index], sorted_accel_y[mid_index], sorted_accel_z[mid_index]]
 		gyro = [sorted_gyro_x[mid_index], sorted_gyro_y[mid_index], sorted_gyro_z[mid_index]]
 		return accel, gyro
 
-	def update_plot(self):
-		if self.imu_topic_type == 0:
-				self.getIMU_1()
-		else:
-			self.getIMU_2()
-		accel, gyro = self.filter_data()
-		self.past_accel_data.pop(0)
-		self.past_accel_data.append(accel)
-		self.past_gyro_data.pop(0)
-		self.past_accel_data.append(gyro)
-		self.ax1.clear()
-		self.ax1.plot([self.past_accel_data[i][0] for i in range(len(self.past_accel_data))])
-
 	def plot_imu_data(self):
-		ani = animation.FuncAnimcation(self.fig, update_plot, interval=1000)
+		rate = rospy.Rate(30)
+		while not rospy.is_shutdown():
+			if self.imu_topic_type == 0:
+				self.getIMU1()
+			else:
+				self.getIMU2()
+			if len(self.accel) != 0 and len(self.gyro) != 0:
+				accel, gyro = self.filter_data() # [self.accel[-1], self.gyro[-1]]
+				self.past_accel_data.pop(0)
+				self.past_accel_data.append(accel)
+				self.past_gyro_data.pop(0)
+				self.past_gyro_data.append(gyro)
+				plt.plot([self.past_accel_data[i][2] for i in range(len(self.past_accel_data))])
+				plt.pause(1/30.)
+				plt.clf()
+			rate.sleep()
+		plt.show()
+
 
 if __name__ == '__main__':
+	test = IMU_state_estimator(['/camera/accel/sample', '/camera/gyro/sample'])
+	test.plot_imu_data()
 	
-			
-
-
-
-
-
 
