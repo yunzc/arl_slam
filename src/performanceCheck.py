@@ -77,7 +77,7 @@ if __name__ == '__main__':
 	lin_diff = None # difference in the linear position 
 	ang_diff = None # difference in the angular position 
 
-	analyzer = PlotAndStore(4)
+	analyzer = PlotAndStore(6)
 
 	while not rospy.is_shutdown():
 		try:
@@ -101,12 +101,14 @@ if __name__ == '__main__':
 				pos, rpy = transformSlamData(trans_s, rot_s, lin_diff, ang_diff)
 				diff_pos, diff_rpy = findDifference(pos, rpy, trans_v, rot_rpy)
 				dist = findDistance(diff_pos)
-				analyzer.add_datapt(0, dist)
-				analyzer.add_datapt(1, abs(diff_rpy[0]))
-				analyzer.add_datapt(2, abs(diff_rpy[1]))
-				analyzer.add_datapt(3, abs(diff_rpy[2]))
+				analyzer.add_datapt(0, abs(diff_pos[0]))
+				analyzer.add_datapt(1, abs(diff_pos[1]))
+				analyzer.add_datapt(2, abs(diff_pos[2]))
+				analyzer.add_datapt(3, abs(diff_rpy[0]))
+				analyzer.add_datapt(4, abs(diff_rpy[1]))
+				analyzer.add_datapt(5, abs(diff_rpy[2]))
 
 		except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
 			continue
 		rate.sleep()
-	analyzer.show_result(['dist', 'roll', 'pitch', 'yaw'], ['dist (m)','rads', 'rads', 'rads'])
+	analyzer.show_result(['x-dist', 'y-dist', 'z-dist', 'roll', 'pitch', 'yaw'], ['m', 'm', 'm','rads', 'rads', 'rads'])
