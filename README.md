@@ -12,6 +12,7 @@ a. With only visual Odom:
   - make sure in rtabmap.launch visual_odometry is set as true
   - roslaunch arl_slam zr300.launch 
   - roslaunch arl_slam rtabmap.launch 
+  
 b. With 2D SLAM as Odom:
   - make sure the neede code in zr300.launch is not commented out 
   - turn visual_odometry argument in rtabmap.launch to false
