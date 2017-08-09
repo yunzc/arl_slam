@@ -53,13 +53,12 @@
   <arg name="depth_topic"             default="/camera/depth_registered/sw_registered/image_rect_raw" />
   <arg name="camera_info_topic"       default="/camera/rgb/camera_info" />
   <arg name="frame_id"                default="camera_link"/>     <!-- Fixed frame id, you may set "base_link" or "base_footprint" if they are published -->
-  <arg name="odom_frame_id"           default="/odom"/>                
+  <arg name="odom_frame_id"           default=""/>                
   <arg name="map_frame_id"            default="map"/>
   <arg name="wait_for_transform"      default="0"/>
   <arg name="approx_sync"             default="false"/>   
   <arg name="cfg"                     default="" />
   <arg name="odom_args"               default=""/>
-
 
   <!-- Push down all topics/nodelets into "camera" namespace -->
   <group ns="$(arg camera)">
@@ -124,11 +123,6 @@
       <arg name="sw_registered_processing"        value="$(arg sw_registered_processing)" />
     </include>
 
-    <!-- running slam for odometry enable fisheye = true for this -->
-<!--     <include file="$(find arl_slam)/launch/slamOdom.launch">
-      <arg name="manager"                         value="$(arg manager)" />
-    </include> -->
-
   </group> <!-- camera -->
   
 <!-- Comment out everything below this line if you only want to use visual odom (and also the slam odom above) -->
@@ -146,8 +140,6 @@
     <param name="config_path"                 type="string" value="$(arg cfg)"/>
     <param name="queue_size"                  type="int"    value="$(arg queue_size)"/>
     <param name="ground_truth_frame_id"       type="string" value=""/>
-  </node>
-
-  <node pkg="arl_slam" type="odometry.py" name="odometry.py" output="screen" /> -->
+  </node> -->
 
 </launch>
