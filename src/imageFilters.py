@@ -1,6 +1,8 @@
 #!/usr/bin/env python
- # filter the depth and color images from the realsense hope it will make 
- # SLAM results better 
+
+# Yun Chang 2017
+# filter the depth and color images from the realsense hope it will make 
+# SLAM results better 
 
 import rospy
 import roslib 
