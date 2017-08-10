@@ -86,9 +86,9 @@
         <param name="Vis/CorFlowIterations"       type="int"    value="30" />
         <param name="Vis/CorFlowMaxLevel"         type="int"    value="3" /> 
         <param name="Vis/CorFlowWinSize"          type="int"    value="32" />
-        <param name="Vis/CorGuessWinSize"         type="int"    value="40" />
-        <param name="Vis/InlierDistance"          type="double" value="0.05" />
-        <param name="Vis/MinInliers"              type="int"    value="5" />
+        <param name="Vis/CorGuessWinSize"         type="int"    value="100" />
+        <param name="Vis/InlierDistance"          type="double" value="0.1" />
+        <param name="Vis/MinInliers"              type="int"    value="8" />
         <param name="Odom/ResetCountdown"         type="int"    value="0" />
       </node>
     </group>

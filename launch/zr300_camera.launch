@@ -140,9 +140,11 @@
       <param name="Odom/ResetCountdown"         type="int"    value="8" />
     </node>
 
+    <node pkg="arl_slam" type="imu2ori.py" name="imu2ori" />
+
     <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
       <remap from="/vo"                        to="/camera/odom" />
-      <remap from="/imu"                       to="/camera/imu/data_raw" />
+      <remap from="/imu"                       to="/camera/imu/data" />
 
       <param name="output_frame" value="odom"/>
       <param name="freq" value="40.0"/>
@@ -158,5 +160,10 @@
 
    <!-- convert odometry to correct data type -->
   <node pkg="arl_slam" type="pcs2odom.py" name="pcs2odom" /> 
+
+  <!-- launch range sensor  -->
+  <node pkg="terarangerone" type="terarangerone_node" name="terarangerone_node" >
+    <param name="_portname" value="/dev/ttyUSB0" />
+  </node>
 
 </launch>
