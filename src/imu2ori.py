@@ -16,9 +16,9 @@ gyro_weight = 0.98
 accel_weight = 0.02 
 
 # covariance value 
-covar = 0.01 
+covar = 10. 
 cov = [0 for i in range(9)]
-cov[0] = covar; ori_cov[4] = covar; ori_cov[8] = covar 
+cov[0] = covar; cov[4] = covar; cov[8] = covar 
 
 imu_msg = None 
 # define callBack function 
