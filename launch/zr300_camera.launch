@@ -128,25 +128,17 @@
       <param name="approx_sync"                 type="bool"   value="$(arg approx_sync)"/>
       <param name="config_path"                 type="string" value="$(arg cfg)"/>
       <param name="queue_size"                  type="int"    value="$(arg queue_size)"/>
-      <param name="Odom/GuessMotion"            type="bool"   value="false" />
-      <param name="Vis/CorType"                 type="int"    value="1" />
-      <param name="Vis/CorFlowEps"              type="double" value="0.01" />
-      <param name="Vis/CorFlowIterations"       type="int"    value="30" />
-      <param name="Vis/CorFlowMaxLevel"         type="int"    value="3" /> 
-      <param name="Vis/CorFlowWinSize"          type="int"    value="32" />
-      <param name="Vis/CorGuessWinSize"         type="int"    value="40" />
-      <param name="Vis/InlierDistance"          type="double" value="0.05" />
-      <param name="Vis/MinInliers"              type="int"    value="5" />
-      <param name="Odom/ResetCountdown"         type="int"    value="8" />
+      <rosparam command="load" file="$(find arl_slam)/launch/config/rgbd_odom_params.yaml" />
+
     </node>
 
-    <node pkg="arl_slam" type="imu2ori.py" name="imu2ori" />
+    <!-- <node pkg="arl_slam" type="imu2ori.py" name="imu2ori" /> -->
 
-    <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
+   <!--  <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
       <remap from="/vo"                        to="/camera/odom" />
       <remap from="/imu"                       to="/camera/imu/data" />
 
-      <param name="output_frame" value="odom"/>
+      <param name="output_frame" value="/odom"/>
       <param name="freq" value="40.0"/>
       <param name="sensor_timeout" value="1.0"/>
       <param name="odom_used" value="true"/>
@@ -154,16 +146,17 @@
       <param name="vo_used" value="true"/>
       <param name="debug" value="false"/>
       <param name="self_diagnose" value="false"/>
-    </node>
+
+    </node> -->
 
   </group> <!-- camera -->
 
    <!-- convert odometry to correct data type -->
-  <node pkg="arl_slam" type="pcs2odom.py" name="pcs2odom" /> 
+  <!-- <node pkg="arl_slam" type="pcs2odom.py" name="pcs2odom" />  -->
 
   <!-- launch range sensor  -->
-  <node pkg="terarangerone" type="terarangerone_node" name="terarangerone_node" >
+<!--   <node pkg="terarangerone" type="terarangerone_node" name="terarangerone_node" >
     <param name="_portname" value="/dev/ttyUSB0" />
-  </node>
+  </node> -->
 
 </launch>
