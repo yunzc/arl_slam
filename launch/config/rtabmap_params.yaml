@@ -1,0 +1,5 @@
+Rtabmap/LoopThr: 0.33
+# loopthr default was 0.11
+Rtabmap/DetectionRate: 2.0
+Rtabmap/CreateIntermediateNodes: "false"
+RGBD/NeighborLinkRefining: "true"
