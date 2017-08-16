@@ -1,0 +1,10 @@
+<!-- Master file to launch the following 4 files  -->
+<!-- arl_slam zr300_camera.launch -->
+<!-- mavros px4.launch -->
+<!-- arl_slam ukf_fusion.launch -->
+
+<launch> 
+	<include file="$(find arl_slam)/launch/zr300_camera.launch" /> 
+	<include file="$(find mavros)/launch/px4.launch" /> 
+	<include file="$(find arl_slam)/launch/ukf_fusion.launch" /> 
+</launch>
