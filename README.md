@@ -19,11 +19,7 @@ Download my github: git clone https://github.com/yunzc/arl_slam.git
 
 ***Running SLAM: (Might clean up more later)
 
-roslaunch arl_slam zr300_camera.launch (launches the camera along with visual odometry) 
-
-roslaunch mavros px4.launch (launches px4 and access to imu 
-
-roslaunch arl_slam ukf_fusion.launch (launches sensor fusion) 
+roslaunch arl_slam 3dslam_sensors.launch
 
 roslaunch arl_slam rtabmap.launch (launches 3D SLAM) 
 
