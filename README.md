@@ -1,10 +1,10 @@
 
-3S SLAM work Summer 2017
+***3D SLAM work Summer 2017
 Implement 3D SLAM on a quadcopter
 
-Hardware (current): Intel NUC, Realsense ZR300, Pixhawk2 (PX4)
+***Hardware (current): Intel NUC, Realsense ZR300, Pixhawk2 (PX4)
 
-Setup:
+***Setup
 
 Download realsense ros driver: sudo pat-get install ros-kinetic-realsense-camera 
 
@@ -17,7 +17,7 @@ Setup Pixhawk and MAVROS: https://dev.px4.io/en/ros/mavros_installation.html
 Download my github: git clone https://github.com/yunzc/arl_slam.git 
 
 
-Running SLAM: (Might clean up more later) 
+***Running SLAM: (Might clean up more later)
 
 roslaunch arl_slam zr300_camera.launch (launches the camera along with visual odometry) 
 
