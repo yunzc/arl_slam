@@ -1,0 +1,8 @@
+<launch>
+  <node pkg="robot_localization" type="ukf_localization_node" name="ukf_se" clear_params="true">
+    <rosparam command="load" file="$(find arl_slam)/launch/config/ukf_fusion.yaml" />
+
+    <remap from="odometry/filtered" to="/odom"/>
+   
+  </node>
+</launch>
