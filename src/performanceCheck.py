@@ -94,7 +94,7 @@ if __name__ == '__main__':
 	while not rospy.is_shutdown():
 		try:
 			(trans_v,rot_v) = listener.lookupTransform('vicon/yun/yun', '/vicon_origin', rospy.Time(0))
-			(trans_s, rot_s) = listener.lookupTransform('camera_link', 'map', rospy.Time(0))
+			(trans_s, rot_s) = listener.lookupTransform('base_link', 'odom', rospy.Time(0))
 			if vicon_pos_0 == None or vicon_ori_0 == None: # find the first transform for reference 
 				vicon_pos_0 = trans_v
 				vicon_ori_0 = rot_v
