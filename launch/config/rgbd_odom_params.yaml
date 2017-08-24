@@ -1,6 +1,6 @@
 Odom/GuessMotion: 'false' 
 # Vis/BundleAdjustment: 1
-Vis/CorType: 0
+Vis/CorType: 1 # 0=Features Matching, 1=Optical Flow
 Vis/CorFlowEps: 0.01 
 Vis/CorFlowIterations: 30 
 Vis/CorFlowMaxLevel: 3  
