@@ -1,0 +1,11 @@
+<launch>
+	<node pkg="arl_slam" type="convertData.py" name="converter" output="screen" />
+    <node  launch-prefix="gdb -ex run --args" name="msf_pose_pressure_sensor" pkg="msf_updates" type="pose_pressure_sensor" clear_params="true" output="screen">
+    	<remap from="msf_core/imu_state_input" to="/camera/imu/data_raw" />
+    	<!-- <remap from="msf_core/hl_state_input" to="/drone/ekf_state_out" />  -->
+    	<remap from="msf_updates/pose_with_covariance_input" to="/camera/vodom" />
+    	<remap from="msf_updates/pressure_height" to="/mavros/height" />
+    	<!-- <remap from="msf_core/correction" to="/drone/ekf_state_in"/> -->
+    	<rosparam file="$(find arl_slam)/launch/config/pose_pressure_sensor_fix.yaml"/>
+    </node>
+</launch>                                                                                                                                                                                                                                                                                                                                                                                                            

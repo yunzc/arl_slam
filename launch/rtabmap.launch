@@ -41,7 +41,7 @@
   <arg name="subscribe_scan_cloud"    default="false"/>
   <arg name="scan_cloud_topic"        default="/scan_cloud"/>
   <arg name="visual_odometry"          default="false"/>          <!-- Launch rtabmap visual odometry node -->
-  <arg name="odom_topic"               default="/mavros/local_position/odom"/> <!-- Odometry topic used if visual_odometry is false -->
+  <arg name="odom_topic"               default="/odom"/> <!-- Odometry topic used if visual_odometry is false -->
   <arg name="vo_frame_id"              default="/odom"/>
   <arg name="odom_tf_angular_variance" default="1"/>             <!-- If TF is used to get odometry, this is the default angular variance -->
   <arg name="odom_tf_linear_variance"  default="1"/>             <!-- If TF is used to get odometry, this is the default linear variance -->
