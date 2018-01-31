@@ -25,9 +25,9 @@ Download my github: git clone https://github.com/yunzc/arl_slam.git
 ```
 roslaunch arl_slam 3dslam_sensors.launch
 ```
-and in another terminal 
+and in another terminal launch 3D SLAM 
 ```
-roslaunch arl_slam rtabmap.launch (launches 3D SLAM) 
+roslaunch arl_slam rtabmap.launch 
 ```
 
 
